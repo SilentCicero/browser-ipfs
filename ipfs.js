@@ -1,50 +1,71 @@
 var ipfs = {};
-
-ipfs.currentProvider = {host: null, port: null};
-ipfs.defaultProvider = {host: 'localhost', port: '5001'};
+ipfs.localProvider = {host: 'localhost', port: '5001', protocol: 'http'};
 
 ipfs.setProvider = function(opts) {
-  if (!opts) opts = this.defaultProvider;
+  if (!opts) opts = this.localProvider;
   if (typeof opts === 'object' && !opts.hasOwnProperty('host')) {
     return;
   }
-  ipfs.currentProvider = opts;
+  ipfs.api = opts;
 };
 
 ipfs.api_url = function(path) {
-  return "http://" + ipfs.currentProvider.host + ":" + ipfs.currentProvider.port + "/api/v0" + path;
+  var api = ipfs.api;
+  return api.protocol + "://" + api.host +
+          (api.port ? ":" + api.port :"")  +
+          (api.root ? api.root :"") + "/api/v0" + path;
+}
+
+function ensureProvider(callback) {
+  if (!ipfs.api) {
+    callback("No provider set", null);
+    return false;
+  }
+  return true;
+}
+
+function request(opts) {
+  if (!ensureProvider(opts.callback)) return ;
+  var req = new XMLHttpRequest();
+  req.addEventListener("load", function() {
+    if (req.status != 200)
+      opts.callback(req.responseText,null);
+    else {
+      var response = req.responseText;
+      if (opts.transform) {
+        response = opts.transform(response);
+      }
+      opts.callback(null,response);
+    }
+  });
+  req.open(opts.method || "GET", ipfs.api_url(opts.uri));
+  if (opts.accept) {
+    req.setRequestHeader("accept", opts.accept);
+  }
+  if (opts.payload) {
+    req.enctype = "multipart/form-data";
+    req.send(opts.payload);
+  } else {
+    req.send()
+  }
 }
 
 ipfs.add = function(input, callback) {
-  var oReq = new XMLHttpRequest();
-  oReq.enctype = "multipart/form-data";
-  oReq.addEventListener("load", function() {
-    if (oReq.status != 200)
-      callback(oReq.responseText,null);
-    else {
-      var response = JSON.parse(oReq.responseText);
-      callback(null,response["Hash"]);
-    }
-
-  });
   var form = new FormData();
   form.append("file",new Blob([input],{}));
-  oReq.open("POST", ipfs.api_url("/add"));
-  oReq.setRequestHeader("accept", "application/json");
-  oReq.send(form);
+  request({
+    callback: callback,
+    method:"POST",
+    uri:"/add",
+    payload:form,
+    accept: "application/json",
+    transform: function(response) { return JSON.parse(response)["Hash"]}});
 };
 
 ipfs.catText = function(ipfsHash, callback) {
-  var oReq = new XMLHttpRequest();
-  oReq.addEventListener("load", function() {
-    if (oReq.status != 200)
-      callback(oReq.responseText,null);
-    else
-      callback(null,oReq.responseText);
-  });
-  oReq.open("GET", ipfs.api_url("/cat/" + ipfsHash));
-  oReq.send();
+  request({callback: callback, uri:("/cat/" + ipfsHash)})
 };
+
 ipfs.cat = ipfs.catText; // Alias this for now
 
 ipfs.addJson = function(jsonObject, callback) {
@@ -55,7 +76,6 @@ ipfs.addJson = function(jsonObject, callback) {
 ipfs.catJson = function(ipfsHash, callback) {
   ipfs.catText(ipfsHash, function (err, jsonString) {
     if (err) callback(err, {});
-
     var jsonObject = {};
     try {
       jsonObject = typeof jsonString === 'string' ?  JSON.parse(jsonString) : jsonString;
