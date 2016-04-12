@@ -1,10 +1,14 @@
-# ipfs.js
+# Browser friendly ipfs.js light
 
-Wrapper for [node-ipfs-api](https://github.com/ipfs/node-ipfs-api)
+This is meant to implement the most common use cases for using ipfs in a browser. It has zero dependencies.
 
-## Browser friendly
+It meant to be mostly compatible with [ipfs.js](https://github.com/consensys/ipfs.js) with a few key differences:
 
-Run `npm install ipfs-js`
+- no specific support for Buffers
+- only implements simple add and cat functionality
+- Basically if you're using ipfs as a simple KV store, this should do the trick
+
+Run `npm install browser-ipfs`
 
 Or reference `dist/ipfs.min.js` inside a `<script />` to expose the global `ipfs`
 
@@ -39,22 +43,11 @@ Navigate to the url echoed from `./example.url` in the browser, or run `./exampl
 
 ### `ipfs.setProvider(require('ipfs-api')('localhost', '5001'))`
 
-node.js compatibility for ipfs.js
-
-
-#### `ipfs.add(textOrBuffer, callback)`
+#### `ipfs.add(text, callback)`
 
 	ipfs.add("Testing...", function(err, hash) {
 		if (err) throw err; // If connection is closed
 		console.log(hash); 	// "Qmc7CrwGJvRyCYZZU64aPawPj7CJ56vyBxdhxa38Dh1aKt"
-	});
-
-
-#### `ipfs.cat(hash, callback)`
-
-	ipfs.cat("Qmc7CrwGJvRyCYZZU64aPawPj7CJ56vyBxdhxa38Dh1aKt", function(err, buffer) {
-		if (err) throw err;
-		console.log(buffer.toString()); 	// "Testing..."
 	});
 
 #### `ipfs.catText(hash, callback)`
@@ -63,13 +56,7 @@ node.js compatibility for ipfs.js
 		if (err) throw err;
 		console.log(text); 	// "Testing..."
 	});
-	
+
 #### `ipfs.addJson(json, callback)`
 
 #### `ipfs.catJson(hash, callback)`
-
-#### `ipfs.api.*`  - all methods from node-ipfs-api
-
-#### `ipfs.utils.base58ToHex(base58)`
-#### `ipfs.utils.hexToBase58(hex)`
-

@@ -1,24 +1,19 @@
 {
-  "name": "ipfs-js",
-  "version": "0.0.9",
-  "description": "Helper methods for ipfs-api",
+  "name": "browser-ipfs",
+  "version": "0.0.1",
+  "description": "Simplified IPFS api targeted at the browser",
   "main": "ipfs.js",
-  "browserify": {
-    "transform": [
-      "brfs"
-    ]
-  },
   "scripts": {
-    "build": "./node_modules/.bin/browserify -s ipfs -e ./ipfs.js | tee dist/ipfs.js | ./node_modules/.bin/uglifyjs -m > dist/ipfs.min.js && cp dist/ipfs.js example/",
+    "build": "./node_modules/.bin/uglifyjs ./ipfs.js -m > dist/ipfs.min.js",
     "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ConsenSys/ipfs.js.git"
+    "url": "https://github.com/pelle/browser-ipfs.git"
   },
-  "homepage": "https://github.com/ConsenSys/ipfs.js",
+  "homepage": "https://github.com/pelle/browser-ipfs",
   "bugs": {
-    "url": "https://github.com/ConsenSys/ipfs.js/issues"
+    "url": "https://github.com/pelle/browser-ipfs/issues"
   },
   "keywords": [
     "ipfs"
@@ -26,22 +21,13 @@
   "author": "ConsenSys",
   "license": "ISC",
   "devDependencies": {
-    "brfs": "^1.4.1",
-    "browserify": "^11.0.1",
-    "chai": "^3.2.0",
-    "ipfsd-ctl": "0.3.3",
-    "mocha": "^2.2.5",
     "uglify-js": "^2.4.24"
   },
-  "dependencies": {
-    "bitcore": "^0.13.0",
-    "concat-stream": "^1.5.0",
-    "ipfs-api": "https://github.com/ckeenan/node-ipfs-api#concat-bin@2.3.2",
-    "vinyl": "^0.5.1"
-  },
+  "dependencies": {},
   "authors": [
     "Jeff Scott Ward",
     "Christian Lundkvist",
-    "Connor Keenan"
+    "Connor Keenan",
+    "Pelle Braendgaard"
   ]
 }
