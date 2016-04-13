@@ -4,7 +4,7 @@ This is meant to implement the most common use cases for using ipfs in a browser
 
 It meant to be mostly compatible with [ipfs.js](https://github.com/consensys/ipfs.js) with a few key differences:
 
-- no specific support for Buffers
+- no specific support for Buffers. Buffer's still work, see caveat below in documentation for ipfs.cat
 - only implements simple add and cat functionality
 - Basically if you're using ipfs as a simple KV store, this should do the trick
 
@@ -43,12 +43,21 @@ Navigate to the url echoed from `./example.url` in the browser, or run `./exampl
 
 ### `ipfs.setProvider(require('ipfs-api')('localhost', '5001'))`
 
-#### `ipfs.add(text, callback)`
+#### `ipfs.add(stringOrBuffer, callback)`
 
 	ipfs.add("Testing...", function(err, hash) {
 		if (err) throw err; // If connection is closed
 		console.log(hash); 	// "Qmc7CrwGJvRyCYZZU64aPawPj7CJ56vyBxdhxa38Dh1aKt"
 	});
+
+#### `ipfs.cat(hash, callback)`
+
+Since we want to avoid including Buffer as a specific dependency. You need to manually convert the data returned from cat to a Buffer if that is what you're expecting.
+
+  ipfs.cat("Qmc7CrwGJvRyCYZZU64aPawPj7CJ56vyBxdhxa38Dh1aKt", function(err, data) {
+    if (err) throw err;
+    console.log(new Buffer(data,'binary').toString());   // "Testing..."
+  });
 
 #### `ipfs.catText(hash, callback)`
 
@@ -56,6 +65,8 @@ Navigate to the url echoed from `./example.url` in the browser, or run `./exampl
 		if (err) throw err;
 		console.log(text); 	// "Testing..."
 	});
+
+  new buffer.Buffer(data, 'binary')
 
 #### `ipfs.addJson(json, callback)`
 

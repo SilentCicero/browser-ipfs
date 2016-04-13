@@ -1,3 +1,4 @@
+(function() {
 var ipfs = {};
 ipfs.localProvider = {host: 'localhost', port: '5001', protocol: 'http'};
 
@@ -52,14 +53,15 @@ function request(opts) {
 
 ipfs.add = function(input, callback) {
   var form = new FormData();
-  form.append("file",new Blob([input],{}));
+  var data = (isBuffer(input) ? input.toString('binary') : input);
+  form.append("file",new Blob([data],{}));
   request({
     callback: callback,
     method:"POST",
     uri:"/add",
     payload:form,
     accept: "application/json",
-    transform: function(response) { return JSON.parse(response)["Hash"]}});
+    transform: function(response) { return response ? JSON.parse(response)["Hash"] : null}});
 };
 
 ipfs.catText = function(ipfsHash, callback) {
@@ -86,10 +88,20 @@ ipfs.catJson = function(ipfsHash, callback) {
   });
 };
 
+// From https://github.com/feross/is-buffer
+function isBuffer(obj) {
+  return !!(obj != null &&
+    (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
+      (obj.constructor &&
+      typeof obj.constructor.isBuffer === 'function' &&
+      obj.constructor.isBuffer(obj))
+    ))
+}
+
 if (window !== 'undefined') {
   window.ipfs = ipfs;
 }
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ipfs;
 }
-
+})();
