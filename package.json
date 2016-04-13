@@ -1,6 +1,6 @@
 {
   "name": "browser-ipfs",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Simplified IPFS api targeted at the browser",
   "main": "ipfs.js",
   "scripts": {

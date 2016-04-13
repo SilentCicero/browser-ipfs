@@ -98,7 +98,7 @@ function isBuffer(obj) {
     ))
 }
 
-if (window !== 'undefined') {
+if (typeof window !== 'undefined') {
   window.ipfs = ipfs;
 }
 if (typeof module !== 'undefined' && module.exports) {
