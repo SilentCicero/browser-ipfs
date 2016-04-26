@@ -1,6 +1,6 @@
 (function() {
 var ipfs = {};
-ipfs.localProvider = {host: 'localhost', port: '5001', protocol: 'http'};
+ipfs.localProvider = {host: '127.0.0.1', port: '5001', protocol: 'http', root: '/api/v0'};
 
 ipfs.setProvider = function(opts) {
   if (!opts) opts = this.localProvider;
@@ -14,7 +14,7 @@ ipfs.api_url = function(path) {
   var api = ipfs.api;
   return api.protocol + "://" + api.host +
           (api.port ? ":" + api.port :"")  +
-          (api.root ? api.root :"") + "/api/v0" + path;
+          (api.root ? api.root :"") + path;
 }
 
 function ensureProvider(callback) {
@@ -28,17 +28,19 @@ function ensureProvider(callback) {
 function request(opts) {
   if (!ensureProvider(opts.callback)) return ;
   var req = new XMLHttpRequest();
-  req.addEventListener("load", function() {
-    if (req.status != 200)
-      opts.callback(req.responseText,null);
-    else {
-      var response = req.responseText;
-      if (opts.transform) {
-        response = opts.transform(response);
+  req.onreadystatechange = function() {
+    if (req.readyState == 4) {
+      if (req.status != 200)
+        opts.callback(req.responseText,null);
+      else {
+        var response = req.responseText;
+        if (opts.transform) {
+          response = opts.transform(response);
+        }
+        opts.callback(null,response);
       }
-      opts.callback(null,response);
     }
-  });
+  };
   req.open(opts.method || "GET", ipfs.api_url(opts.uri));
   if (opts.accept) {
     req.setRequestHeader("accept", opts.accept);
@@ -54,7 +56,8 @@ function request(opts) {
 ipfs.add = function(input, callback) {
   var form = new FormData();
   var data = (isBuffer(input) ? input.toString('binary') : input);
-  form.append("file",new Blob([data],{}));
+  var blob = new Blob([data],{})
+  form.append("file", blob);
   request({
     callback: callback,
     method:"POST",
