@@ -1,5 +1,5 @@
 (function() {
-var XMLHttpRequestNode = require('xhr2');
+var XMLHttpRequestNode = require("xmlhttprequest").XMLHttpRequest;
 var ipfs = {};
 ipfs.localProvider = {host: '127.0.0.1', port: '5001', protocol: 'http', root: '/api/v0'};
 
