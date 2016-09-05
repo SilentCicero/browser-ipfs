@@ -1,4 +1,5 @@
 (function() {
+var XMLHttpRequestNode = require('xhr2');
 var ipfs = {};
 ipfs.localProvider = {host: '127.0.0.1', port: '5001', protocol: 'http', root: '/api/v0'};
 
@@ -27,7 +28,14 @@ function ensureProvider(callback) {
 
 function request(opts) {
   if (!ensureProvider(opts.callback)) return ;
-  var req = new XMLHttpRequest();
+  var req;
+  
+  if (typeof XMLHttpRequest === 'undefined') {
+    req = new XMLHttpRequestNode();
+  } else {
+    req = new XMLHttpRequest();
+  }
+  
   req.onreadystatechange = function() {
     if (req.readyState == 4) {
       if (req.status != 200)
