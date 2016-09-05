@@ -1,5 +1,17 @@
 (function() {
-var XMLHttpRequestNode = require("xmlhttprequest").XMLHttpRequest;
+  
+// workaround to use httpprovider in different envs
+var XMLHttpRequest; // jshint ignore: line
+
+// browser
+if (typeof window !== 'undefined' && window.XMLHttpRequest) {
+    XMLHttpRequest = window.XMLHttpRequest; // jshint ignore: line
+
+// node
+} else {
+    XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest; // jshint ignore: line
+}
+
 var ipfs = {};
 ipfs.localProvider = {host: '127.0.0.1', port: '5001', protocol: 'http', root: '/api/v0'};
 
@@ -28,13 +40,7 @@ function ensureProvider(callback) {
 
 function request(opts) {
   if (!ensureProvider(opts.callback)) return ;
-  var req;
-  
-  if (typeof XMLHttpRequest === 'undefined') {
-    req = new XMLHttpRequestNode();
-  } else {
-    req = new XMLHttpRequest();
-  }
+  var req = new XMLHttpRequest();
   
   req.onreadystatechange = function() {
     if (req.readyState == 4) {
