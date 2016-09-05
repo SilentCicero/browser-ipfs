@@ -23,7 +23,9 @@
   "devDependencies": {
     "uglify-js": "^2.4.24"
   },
-  "dependencies": {},
+  "dependencies": {
+    "xhr2": "*"
+  },
   "authors": [
     "Jeff Scott Ward",
     "Christian Lundkvist",
